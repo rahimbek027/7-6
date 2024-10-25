@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import './App.css';
+import { addData, deleteData, updateData } from './store';
 
 function App() {
-  const [data, setData] = useState([]);
+  const dispatch = useDispatch();
+  const data = useSelector((state) => state.data);
   const [name, setName] = useState('');
   const [editId, setEditId] = useState(null);
   const [editName, setEditName] = useState('');
@@ -12,23 +15,19 @@ function App() {
     return Math.floor(100000000000 + Math.random() * 900000000000).toString();
   };
 
-  const addData = () => {
+  const handleAdd = () => {
     if (name.trim()) {
-      setData([...data, { id: generateId(), name }]);
+      dispatch(addData({ id: generateId(), name }));
       setName('');
     }
   };
 
-  const deleteData = (id) => {
-    setData(data.filter(item => item.id !== id));
+  const handleDelete = (id) => {
+    dispatch(deleteData(id));
   };
 
-  const updateData = (id) => {
-    setData(
-      data.map(item =>
-        item.id === id ? { ...item, name: editName } : item
-      )
-    );
+  const handleUpdate = (id) => {
+    dispatch(updateData({ id, name: editName }));
     setEditId(null);
     setEditName('');
   };
@@ -43,9 +42,9 @@ function App() {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <button onClick={addData}>Add</button>
+        <button onClick={handleAdd}>Add</button>
       </div>
-      
+
       <table>
         <thead>
           <tr>
@@ -71,14 +70,14 @@ function App() {
               </td>
               <td>
                 {editId === item.id ? (
-                  <button onClick={() => updateData(item.id)}>Save</button>
+                  <button onClick={() => handleUpdate(item.id)}>Save</button>
                 ) : (
                   <>
                     <button onClick={() => {
                       setEditId(item.id);
                       setEditName(item.name);
                     }}>Edit</button>
-                    <button onClick={() => deleteData(item.id)}>Delete</button>
+                    <button onClick={() => handleDelete(item.id)}>Delete</button>
                   </>
                 )}
               </td>
